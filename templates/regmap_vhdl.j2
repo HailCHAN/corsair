@@ -66,27 +66,27 @@ x"{{ ('{:0%dx}' % (width//4)).format(val) }}"
 {% macro process_begin(sig='test', width=1, init=0, width_is_param=0) %}
     {% set rst_type = config['register_reset']%}
     {% if rst_type == 'sync_pos' %}
-process (clk) begin
-if rising_edge(clk) then
-if (rst = '1') then
+process (clk_i) begin
+if rising_edge(clk_i) then
+if (rst_n_i = '1') then
     {{ sig }} <= {{ literal(init, width, width_is_param) }}; {{ literal_comment(init) }}
 else
     {%- elif rst_type == 'sync_neg' %}
-process (clk) begin
-if rising_edge(clk) then
-if (rst = '0') then
+process (clk_i) begin
+if rising_edge(clk_i) then
+if (rst_n_i = '0') then
     {{ sig }} <= {{ literal(init, width, width_is_param) }}; {{ literal_comment(init) }}
 else
     {%- elif rst_type == 'async_pos' %}
-process (clk, rst) begin
-if (rst = '1') then
+process (clk_i, rst_n_i) begin
+if (rst_n_i = '1') then
     {{ sig }} <= {{ literal(init, width, width_is_param) }}; {{ literal_comment(init) }}
-elsif rising_edge(clk) then
+elsif rising_edge(clk_i) then
     {%- elif rst_type == 'async_neg' %}
-process (clk, rst) begin
-if (rst = '0') then
+process (clk_i, rst_n_i) begin
+if (rst_n_i = '0') then
     {{ sig }} <= {{ literal(init, width, width_is_param) }}; {{ literal_comment(init) }}
-elsif rising_edge(clk) then
+elsif rising_edge(clk_i) then
     {%- endif %}
 {%- endmacro %}
 
@@ -229,8 +229,8 @@ generic(
     STRB_W : integer := {{ config['data_width'] // 8 }}
 );
 port(
-    clk    : in std_logic;
-    rst    : in std_logic;
+    clk_i    : in std_logic;
+    rst_n_i    : in std_logic;
 {% for reg in rmap %}
     {% for bf in reg %}
     -- {{ reg.name }}.{{ bf.name }}

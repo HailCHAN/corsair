@@ -28,7 +28,13 @@ module {{ module_name }} #(
     input  [STRB_W-1:0] pstrb,
     output [DATA_W-1:0] prdata,
     output              pready,
-    output              pslverr
+    output              pslverr,
+    //add port
+    input               endinit_i,
+    input               safety_endinit_i,
+    input               sys_rst_n_i,
+    input               mod_cdacc_i,
+    input               mod_mpacc_i
 );
 {% if regmap_embed %}
 wire              wready;

@@ -8,8 +8,8 @@ module  {{ module_name }} #(
     parameter DATA_W = {{ config['data_width'] }},
     parameter STRB_W = DATA_W / 8
 )(
-    input               clk,
-    input               rst,
+    input               clk_i,
+    input               rst_n_i,
     // Local Bus
     input               wready,
     output [ADDR_W-1:0] waddr,
@@ -82,11 +82,11 @@ wire              ren;
     {%- elif rst_type == 'async_neg' or rst_type == 'sync_neg' %}
         {% set rst_active = 0%}
     {%- endif %}
-    always @(posedge clk
-    {%- if rst_type == 'async_pos' %} or posedge rst)
-    {%- elif rst_type == 'async_neg' %} or negedge rst)
+    always @(posedge clk_i
+    {%- if rst_type == 'async_pos' %} or posedge rst_n_i)
+    {%- elif rst_type == 'async_neg' %} or negedge rst_n_i)
     {%- else -%} ) {%- endif %} begin
-        if (rst == 1'b{{ rst_active }}) begin
+        if (rst_n_i == 1'b{{ rst_active }}) begin
             waddr_int       <= 'd0;
             wdata_int       <= 'd0;
             strb_int        <= 'd0;
@@ -125,11 +125,11 @@ wire              ren;
     assign axil_rresp   = 'd0; // always okay
 
     {% set rst_type = config['register_reset'] %}
-    always @(posedge clk
-    {%- if rst_type == 'async_pos' %} or posedge rst)
-    {%- elif rst_type == 'async_neg' %} or negedge rst)
+    always @(posedge clk_i
+    {%- if rst_type == 'async_pos' %} or posedge rst_n_i)
+    {%- elif rst_type == 'async_neg' %} or negedge rst_n_i)
     {%- else -%} ) {%- endif %} begin
-        if (rst == 1'b{{ rst_active }}) begin
+        if (rst_n_i == 1'b{{ rst_active }}) begin
             raddr_int       <= 'd0;
             arflag          <= 1'b0;
             rflag           <= 1'b0;

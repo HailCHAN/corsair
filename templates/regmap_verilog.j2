@@ -55,17 +55,17 @@
 {% macro always_begin(sig='', width=1, init=0) %}
     {% set rst_type = config['register_reset']%}
     {% if rst_type == 'sync_pos' %}
-always @(posedge clk) begin
-    if (rst) begin
+always @(posedge clk_i) begin
+    if (rst_n_i) begin
     {% elif rst_type == 'sync_neg' %}
-always @(posedge clk) begin
-    if (!rst) begin
+always @(posedge clk_i) begin
+    if (!rst_n_i) begin
     {% elif rst_type == 'async_pos' %}
-always @(posedge clk or posedge rst) begin
-    if (rst) begin
+always @(posedge clk_i or posedge rst_n_i) begin
+    if (rst_n_i) begin
     {% elif rst_type == 'async_neg' %}
-always @(posedge clk or negedge rst) begin
-    if (!rst) begin
+always @(posedge clk_i or negedge rst_n_i) begin
+    if (!rst_n_i) begin
     {% endif %}
         {{ sig }} <= {{ literal(init, width) }};
     end else
@@ -176,8 +176,8 @@ module {{ module_name }} #(
     parameter STRB_W = DATA_W / 8
 )(
     // System
-    input clk,
-    input rst,
+    input clk_i,
+    input rst_n_i,
 {% for reg in rmap %}
     {% for bf in reg %}
     // {{ reg.name }}.{{ bf.name }}
