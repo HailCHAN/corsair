@@ -55,20 +55,29 @@
 {% macro always_begin(sig='', width=1, init=0) %}
     {% set rst_type = config['register_reset']%}
     {% if rst_type == 'sync_pos' %}
-always @(posedge clk_i) begin
-    if (rst_n_i) begin
+always @(posedge clk_i) 
+begin
+    if (rst_n_i) 
+    begin
     {% elif rst_type == 'sync_neg' %}
-always @(posedge clk_i) begin
-    if (!rst_n_i) begin
+always @(posedge clk_i) 
+begin
+    if (!rst_n_i) 
+    begin
     {% elif rst_type == 'async_pos' %}
-always @(posedge clk_i or posedge rst_n_i) begin
-    if (rst_n_i) begin
+always @(posedge clk_i or posedge rst_n_i) 
+begin
+    if (rst_n_i) 
+    begin
     {% elif rst_type == 'async_neg' %}
-always @(posedge clk_i or negedge rst_n_i) begin
-    if (!rst_n_i) begin
+always @(posedge clk_i or negedge rst_n_i) 
+begin
+    if (!rst_n_i) 
+    begin
     {% endif %}
         {{ sig }} <= {{ literal(init, width) }};
-    end else
+    end 
+    else
 {%- endmacro %}
 
 {#- signal: csr for rdata bus #}
@@ -267,7 +276,8 @@ wire {{ sig_csr_ren(reg) }};
 assign {{ sig_csr_ren(reg) }} = ren && (raddr == {{ literal(reg.address, config['address_width']) }});
 reg {{ sig_csr_ren_ff(reg) }};
 {{ always_begin(sig=sig_csr_ren_ff(reg)
-)}} begin
+)}} 
+    begin
         {{ sig_csr_ren_ff(reg) }} <= {{ sig_csr_ren(reg) }};
     end
 end
@@ -309,53 +319,74 @@ assign {{ port_bf_wen(reg, bf) }} = {{ sig_csr_wen(reg) }};
         {% endif %}
 
 {{ always_begin(sig=sig_bf_ff(reg, bf), width=bf.width, init=bf.reset)
-}} {% if 'l' in bf.hardware %}if (!{{ port_bf_lock(reg, bf) }}){% endif %} begin
+}} {% if 'l' in bf.hardware %}if (!{{ port_bf_lock(reg, bf) }}){% endif %} 
+    begin
         {% if 's' in bf.hardware %}
-        if ({{ port_bf_set(reg, bf) }}) begin
+        if ({{ port_bf_set(reg, bf) }}) 
+        begin
             {{ sig_bf_ff(reg, bf) }} <= {{ ones(bf.width) }};
-        end else
+        end 
+        else
         {%- endif %} {% if 'c' in bf.hardware -%}
-        if ({{ port_bf_clr(reg, bf) }}) begin
+        if ({{ port_bf_clr(reg, bf) }}) 
+        begin
             {{ sig_bf_ff(reg, bf) }} <= {{ zeros(bf.width) }};
-        end else
+        end 
+        else
         {%- endif %} {% if bf.access == 'roc' %}
-        if ({{ sig_csr_ren(reg) }} && !{{ sig_csr_ren_ff(reg) }}) begin
+        if ({{ sig_csr_ren(reg) }} && !{{ sig_csr_ren_ff(reg) }}) 
+        begin
             {{ sig_bf_ff(reg, bf) }} <= {{ zeros(bf.width) }};
-        end else
+        end 
+        else
         {%- endif %} {% if bf.access == 'rolh' %}
-        if ({{ sig_csr_ren(reg) }} && !{{ sig_csr_ren_ff(reg) }} && ({{ sig_bf_ff(reg, bf) }} != {{ zeros(bf.width) }})) begin
+        if ({{ sig_csr_ren(reg) }} && !{{ sig_csr_ren_ff(reg) }} && ({{ sig_bf_ff(reg, bf) }} != {{ zeros(bf.width) }})) 
+        begin
             {{ sig_bf_ff(reg, bf) }} <= {{ zeros(bf.width) }};
-        end else
+        end 
+        else
         {%- endif %} {% if bf.access == 'roll' -%}
-        if ({{ sig_csr_ren(reg) }} && !{{ sig_csr_ren_ff(reg) }} && ({{ sig_bf_ff(reg, bf) }} != {{ ones(bf.width) }})) begin
+        if ({{ sig_csr_ren(reg) }} && !{{ sig_csr_ren_ff(reg) }} && ({{ sig_bf_ff(reg, bf) }} != {{ ones(bf.width) }})) 
+        begin
             {{ sig_bf_ff(reg, bf) }} <= {{ ones(bf.width) }};
-        end else
+        end 
+        else
         {%- endif %} {% if 'w' in bf.access -%}
-        if ({{ sig_csr_wen(reg) }}) begin
+        if ({{ sig_csr_wen(reg) }}) 
+        begin
             {% for num, val in bf.byte_strobes.items() %}
                 {% if 'w1c' in bf.access %}
-            if (wstrb[{{ num }}] && wdata{{ range(val['wdata_msb'], val['wdata_lsb']) }}) begin
+            if (wstrb[{{ num }}] && wdata{{ range(val['wdata_msb'], val['wdata_lsb']) }}) 
+            begin
                 {{ sig_bf_ff(reg, bf) }}{{ range(val['bf_msb'], val['bf_lsb'], bf.is_vector()) }} <= {{ zeros(val['bf_msb'] - val['bf_lsb'] + 1) }};
                 {% elif 'w1s' in bf.access %}
-            if (wstrb[{{ num }}] && wdata{{ range(val['wdata_msb'], val['wdata_lsb']) }}) begin
+            if (wstrb[{{ num }}] && wdata{{ range(val['wdata_msb'], val['wdata_lsb']) }}) 
+            begin
                 {{ sig_bf_ff(reg, bf) }}{{ range(val['bf_msb'], val['bf_lsb'], bf.is_vector()) }} <= {{ ones(val['bf_msb'] - val['bf_lsb'] + 1) }};
                 {% else %}
-            if (wstrb[{{ num }}]) begin
+            if (wstrb[{{ num }}]) 
+            begin
                 {{ sig_bf_ff(reg, bf) }}{{ range(val['bf_msb'], val['bf_lsb'], bf.is_vector()) }} <= wdata{{ range(val['wdata_msb'], val['wdata_lsb']) }};
                 {% endif %}
             end
             {% endfor %}
-        end else
+        end 
+        else
         {%- endif %} {% if 'i' in bf.hardware -%} {%- if 'e' in bf.hardware and 'll' in bf.access -%}
-        if ({{ port_bf_en(reg, bf) }} && ({{ port_bf_in(reg, bf) }} == {{ zeros(bf.width) }})) begin
+        if ({{ port_bf_en(reg, bf) }} && ({{ port_bf_in(reg, bf) }} == {{ zeros(bf.width) }})) 
+        begin
             {% elif 'e' in bf.hardware and 'lh' in bf.access -%}
-        if ({{ port_bf_en(reg, bf) }} && ({{ port_bf_in(reg, bf)}} == {{ ones(bf.width) }})) begin
+        if ({{ port_bf_en(reg, bf) }} && ({{ port_bf_in(reg, bf)}} == {{ ones(bf.width) }})) 
+        begin
             {% elif bf.access == 'roll' -%}
-        if ({{ port_bf_in(reg, bf) }} == {{ zeros(bf.width) }}) begin
+        if ({{ port_bf_in(reg, bf) }} == {{ zeros(bf.width) }}) 
+        begin
             {% elif bf.access == 'rolh' -%}
-        if ({{ port_bf_in(reg, bf) }} == {{ ones(bf.width) }}) begin
+        if ({{ port_bf_in(reg, bf) }} == {{ ones(bf.width) }}) 
+        begin
             {% elif 'e' in bf.hardware -%}
-        if ({{ port_bf_en(reg, bf) }}) begin
+        if ({{ port_bf_en(reg, bf) }}) 
+        begin
             {% else -%} {# no condition #}
         begin
             {%- endif %}
@@ -366,7 +397,7 @@ assign {{ port_bf_wen(reg, bf) }} = {{ sig_csr_wen(reg) }};
         {% elif 'sc' in bf.access -%}
         begin
             {{ sig_bf_ff(reg, bf) }} <= {{ zeros(bf.width) }};
-        {% else -%}
+        {% else %} 
         begin
             {{ sig_bf_ff(reg, bf) }} <= {{ sig_bf_ff(reg, bf) }};
         {% endif %}
@@ -377,7 +408,8 @@ end
         {% if 'r' in bf.access and 'q' in bf.hardware %}
 reg {{ sig_bf_rvalid_ff(reg, bf) }};
 {{ always_begin(sig=sig_bf_rvalid_ff(reg, bf)
-)}} begin
+)}} 
+    begin
         {{ sig_bf_rvalid_ff(reg, bf) }} <= {{ port_bf_rvalid(reg, bf) }};
     end
 end
@@ -395,7 +427,8 @@ end
             {% if tmp.fifo_cnt == 0 %}
 reg wready_drv;
 
-always @(*) begin
+always @(*) 
+begin
     if ({{ sig_csr_wen(reg) }})
         wready_drv = {{ port_bf_wready(reg, bf) }};
             {% else %}
@@ -421,14 +454,17 @@ assign wready = 1'b1;
 //------------------------------------------------------------------------------
 reg {{ range_decl(config['data_width'] - 1) }} rdata_ff;
 {{ always_begin(sig='rdata_ff', width=config['data_width'], init=read_filler
-)}} if (ren) begin
+)}} if (ren) 
+    begin
         case (raddr)
 {% for reg in rmap %}
             {{ literal(reg.address, config['address_width']) }}: rdata_ff <= {{ sig_csr_rdata(reg) }};
 {% endfor %}
             default: rdata_ff <= {{ literal(read_filler, config['data_width']) }};
         endcase
-    end else begin
+    end 
+    else 
+    begin
         rdata_ff <= {{ literal(read_filler, config['data_width']) }};
     end
 end
@@ -439,9 +475,12 @@ assign rdata = rdata_ff;
 //------------------------------------------------------------------------------
 reg rvalid_ff;
 {{ always_begin(sig='rvalid_ff'
-)}} if (ren && rvalid) begin
+)}} if (ren && rvalid) 
+    begin
         rvalid_ff <= 1'b0;
-    end else if (ren) begin
+    end 
+    else if (ren) 
+    begin
         rvalid_ff <= 1'b1;
     end
 end
@@ -452,7 +491,8 @@ end
         {% if 'q' in bf.hardware and  'r' in bf.access %}
             {% if tmp.fifo_cnt == 0 %}
 reg rvalid_drv;
-always @(*) begin
+always @(*) 
+begin
     if ({{ sig_csr_ren_ff(reg) }})
         rvalid_drv = {{ sig_bf_rvalid_ff(reg, bf) }};
             {% else %}
