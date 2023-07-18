@@ -351,7 +351,7 @@ assign {{ port_bf_wen(reg, bf) }} = {{ sig_csr_wen(reg) }};
             {{ sig_bf_ff(reg, bf) }} <= {{ ones(bf.width) }};
         end 
         else
-        {%- endif %} {% if 'w' in bf.access -%}
+        {%- endif %}    {% if 'w' in bf.access -%} 
         if ({{ sig_csr_wen(reg) }}) 
         begin
             {% for num, val in bf.byte_strobes.items() %}
