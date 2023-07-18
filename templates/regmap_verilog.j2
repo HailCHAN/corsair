@@ -272,6 +272,7 @@ assign {{ sig_csr_wen(reg) }} = wen && (waddr == {{ literal(reg.address, config[
     {% endif %}
 
     {% if 'r' in reg.access %}
+
 wire {{ sig_csr_ren(reg) }};
 assign {{ sig_csr_ren(reg) }} = ren && (raddr == {{ literal(reg.address, config['address_width']) }});
 reg {{ sig_csr_ren_ff(reg) }};
@@ -283,6 +284,7 @@ reg {{ sig_csr_ren_ff(reg) }};
 end
     {% endif %}
     {% for bf in reg %}
+
 //---------------------
 // Bit field:
 // {{ reg.name }}{{ range(bf.msb, bf.lsb) }} - {{ bf.name }} - {{ bf.description }}
