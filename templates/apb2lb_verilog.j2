@@ -55,12 +55,12 @@ assign pready  = wen             ? wready :
                  (ren & penable) ? rvalid : 1'b1;
 
 // Local Bus interface
-assign waddr = {paddr[AWIDTH-1:2],2'b0};
+assign waddr = {paddr[ADDR_W-1:2],2'b0};
 assign wdata = pwdata;
 assign wstrb = pstrb;
 assign wen   = psel & penable & pwrite;
 
-assign raddr = {paddr[AWIDTH-1:2],2'b0};
+assign raddr = {paddr[ADDR_W-1:2],2'b0};
 assign ren   = psel & penable & (~pwrite);
 {% endmacro %}
 {{ apb_core() }}
